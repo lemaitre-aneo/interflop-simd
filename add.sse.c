@@ -3,32 +3,24 @@
 #include "add.h"
 
 #if defined(__SSE2__)
-#if VARIANT == VARIANT_VALUE
 __m128 _value_add128(__m128 a, __m128 b) {
   return _mm_add_ps(a, b);
 }
 __m128 (*value_add128)(__m128, __m128) = &_value_add128;
-#endif
-#if VARIANT == VARIANT_INPTR
 __m128 _inptr_add128(const float* a, const float* b) {
   return _mm_add_ps(_mm_loadu_ps(a), _mm_loadu_ps(b));
 }
 __m128 (*inptr_add128)(const float*, const float*) = &_inptr_add128;
-#endif
-#if VARIANT == VARIANT_OUTPTR
 void _outptr_add128(__m128 a, __m128 b, float* dst) {
   _mm_storeu_ps(dst, _mm_add_ps(a, b));
 }
 void (*outptr_add128)(__m128, __m128, float*) = &_outptr_add128;
-#endif
 #else
 void (*value_add128)() = NULL;
 void (*inptr_add128)() = NULL;
 void (*outptr_add128)() = NULL;
 #endif
 
-#if VARIANT == VARIANT_PTR
-__attribute__((hot))
 void _ptr_add128(const float* a, const float* b, float* dst) {
 #if defined(__SSE2__)
   _mm_storeu_ps(dst, _mm_add_ps(_mm_loadu_ps(a), _mm_loadu_ps(b)));
@@ -39,4 +31,3 @@ void _ptr_add128(const float* a, const float* b, float* dst) {
 #endif
 }
 void (*ptr_add128)(const float*, const float*, float*) = &_ptr_add128;
-#endif

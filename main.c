@@ -23,7 +23,6 @@
 #endif
 
 
-#if VARIANT == VARIANT_REF
 void ref_combine_vec(float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ref scalar version\n"));
   for (int i = 0; i < n; ++i) {
@@ -34,8 +33,6 @@ void ref_combine_vec(float* A, const float* B, int n) {
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
-#endif
-#if VARIANT == VARIANT_VALUE
 void value_combine_vec(float(*f)(float, float), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use value scalar version\n"));
   for (int i = 0; i < n; ++i) {
@@ -46,8 +43,6 @@ void value_combine_vec(float(*f)(float, float), float* A, const float* B, int n)
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
-#endif
-#if VARIANT == VARIANT_INPTR
 void inptr_combine_vec(float(*f)(const float*, const float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use inptr scalar version\n"));
   for (int i = 0; i < n; ++i) {
@@ -58,8 +53,6 @@ void inptr_combine_vec(float(*f)(const float*, const float*), float* A, const fl
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
-#endif
-#if VARIANT == VARIANT_OUTPTR
 void outptr_combine_vec(void(*f)(float, float, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use outptr scalar version\n"));
   for (int i = 0; i < n; ++i) {
@@ -70,8 +63,6 @@ void outptr_combine_vec(void(*f)(float, float, float*), float* A, const float* B
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
-#endif
-#if VARIANT == VARIANT_PTR
 void ptr_combine_vec(void(*f)(const float*, const float*, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ptr scalar version\n"));
   for (int i = 0; i < n; ++i) {
@@ -82,10 +73,8 @@ void ptr_combine_vec(void(*f)(const float*, const float*, float*), float* A, con
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
-#endif
 
 #if defined(__SSE2__)
-#if VARIANT == VARIANT_REF
 void ref_combine_vec128(float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ref VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
@@ -96,8 +85,6 @@ void ref_combine_vec128(float* A, const float* B, int n) {
     _mm_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m128, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_VALUE
 void value_combine_vec128(__m128(*f)(__m128, __m128), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use value VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
@@ -108,8 +95,6 @@ void value_combine_vec128(__m128(*f)(__m128, __m128), float* A, const float* B, 
     _mm_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m128, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_INPTR
 void inptr_combine_vec128(__m128(*f)(const float*, const float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use inptr VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
@@ -120,8 +105,6 @@ void inptr_combine_vec128(__m128(*f)(const float*, const float*), float* A, cons
     _mm_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m128, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_OUTPTR
 void outptr_combine_vec128(void(*f)(__m128, __m128, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use outptr VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
@@ -132,8 +115,6 @@ void outptr_combine_vec128(void(*f)(__m128, __m128, float*), float* A, const flo
     _mm_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m128, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_PTR
 void ptr_combine_vec128(void(*f)(const float*, const float*, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ptr VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
@@ -145,10 +126,8 @@ void ptr_combine_vec128(void(*f)(const float*, const float*, float*), float* A, 
   }
 }
 #endif
-#endif
 
 #if defined(__AVX__)
-#if VARIANT == VARIANT_REF
 void ref_combine_vec256(float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ref VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
@@ -159,8 +138,6 @@ void ref_combine_vec256(float* A, const float* B, int n) {
     _mm256_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m256, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_VALUE
 void value_combine_vec256(__m256(*f)(__m256, __m256), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use value VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
@@ -171,8 +148,6 @@ void value_combine_vec256(__m256(*f)(__m256, __m256), float* A, const float* B, 
     _mm256_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m256, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_INPTR
 void inptr_combine_vec256(__m256(*f)(const float*, const float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use inptr VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
@@ -183,8 +158,6 @@ void inptr_combine_vec256(__m256(*f)(const float*, const float*), float* A, cons
     _mm256_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m256, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_OUTPTR
 void outptr_combine_vec256(void(*f)(__m256, __m256, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use outptr VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
@@ -195,8 +168,6 @@ void outptr_combine_vec256(void(*f)(__m256, __m256, float*), float* A, const flo
     _mm256_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m256, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_PTR
 void ptr_combine_vec256(void(*f)(const float*, const float*, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ptr VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
@@ -208,10 +179,8 @@ void ptr_combine_vec256(void(*f)(const float*, const float*, float*), float* A, 
   }
 }
 #endif
-#endif
 
 #if defined(__AVX512F__)
-#if VARIANT == VARIANT_REF
 void ref_combine_vec512(float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ref VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
@@ -222,8 +191,6 @@ void ref_combine_vec512(float* A, const float* B, int n) {
     _mm512_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m512, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_VALUE
 void value_combine_vec512(__m512(*f)(__m512, __m512), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use value VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
@@ -234,8 +201,6 @@ void value_combine_vec512(__m512(*f)(__m512, __m512), float* A, const float* B, 
     _mm512_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m512, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_INPTR
 void inptr_combine_vec512(__m512(*f)(const float*, const float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use inptr VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
@@ -246,8 +211,6 @@ void inptr_combine_vec512(__m512(*f)(const float*, const float*), float* A, cons
     _mm512_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m512, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_OUTPTR
 void outptr_combine_vec512(void(*f)(__m512, __m512, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use outptr VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
@@ -258,8 +221,6 @@ void outptr_combine_vec512(void(*f)(__m512, __m512, float*), float* A, const flo
     _mm512_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m512, c));
   }
 }
-#endif
-#if VARIANT == VARIANT_PTR
 void ptr_combine_vec512(void(*f)(const float*, const float*, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ptr VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
@@ -271,9 +232,7 @@ void ptr_combine_vec512(void(*f)(const float*, const float*, float*), float* A, 
   }
 }
 #endif
-#endif
 
-#if VARIANT == VARIANT_REF
 void ref_add_vec(int repeat, float* A, const float* B, int n) {
   for (int r = 0; r < repeat; ++r) {
 #if defined(__AVX512F__)
@@ -287,9 +246,6 @@ void ref_add_vec(int repeat, float* A, const float* B, int n) {
 #endif
   }
 }
-#endif
-
-#if VARIANT == VARIANT_VALUE
 void value_add_vec(int repeat, float* A, const float* B, int n) {
   for (int r = 0; r < repeat; ++r) {
     if (0) {
@@ -314,9 +270,6 @@ void value_add_vec(int repeat, float* A, const float* B, int n) {
     }
   }
 }
-#endif
-
-#if VARIANT == VARIANT_INPTR
 void inptr_add_vec(int repeat, float* A, const float* B, int n) {
   for (int r = 0; r < repeat; ++r) {
     if (0) {
@@ -341,9 +294,6 @@ void inptr_add_vec(int repeat, float* A, const float* B, int n) {
     }
   }
 }
-#endif
-
-#if VARIANT == VARIANT_OUTPTR
 void outptr_add_vec(int repeat, float* A, const float* B, int n) {
   for (int r = 0; r < repeat; ++r) {
     if (0) {
@@ -368,9 +318,6 @@ void outptr_add_vec(int repeat, float* A, const float* B, int n) {
     }
   }
 }
-#endif
-
-#if VARIANT == VARIANT_PTR
 void ptr_add_vec(int repeat, float* A, const float* B, int n) {
   for (int r = 0; r < repeat; ++r) {
     if (0) {
@@ -395,25 +342,6 @@ void ptr_add_vec(int repeat, float* A, const float* B, int n) {
     }
   }
 }
-#endif
-
-void add_vec(int repeat, float* A, const float* B, int n) {
-#if VARIANT == VARIANT_REF
-  ref_add_vec(repeat, A, B, n);
-#endif
-#if VARIANT == VARIANT_VALUE
-  value_add_vec(repeat, A, B, n);
-#endif
-#if VARIANT == VARIANT_INPTR
-  inptr_add_vec(repeat, A, B, n);
-#endif
-#if VARIANT == VARIANT_OUTPTR
-  outptr_add_vec(repeat, A, B, n);
-#endif
-#if VARIANT == VARIANT_PTR
-  ptr_add_vec(repeat, A, B, n);
-#endif
-}
 
 int main() {
   int tries = 10000;
@@ -436,17 +364,57 @@ int main() {
     B[i] = 1;
   }
 
-  uint64_t dmin = -1;
+  uint64_t dref = -1;
+  uint64_t dvalue = -1;
+  uint64_t dinptr = -1;
+  uint64_t doutptr = -1;
+  uint64_t dptr = -1;
 
   for (int t = 0; t < tries; ++t) {
     uint64_t t0 = _rdtsc();
-    add_vec(repeat, A, B, n);
+    ref_add_vec(repeat, A, B, n);
     uint64_t t1 = _rdtsc();
     uint64_t d = t1 - t0;
-    dmin = d < dmin ? d : dmin;
+    dref = d < dref ? d : dref;
   }
 
-  printf("perf: %g cpp\n", (double)dmin  / (double)(n * repeat));
+  for (int t = 0; t < tries; ++t) {
+    uint64_t t0 = _rdtsc();
+    value_add_vec(repeat, A, B, n);
+    uint64_t t1 = _rdtsc();
+    uint64_t d = t1 - t0;
+    dvalue = d < dvalue ? d : dvalue;
+  }
+
+  for (int t = 0; t < tries; ++t) {
+    uint64_t t0 = _rdtsc();
+    inptr_add_vec(repeat, A, B, n);
+    uint64_t t1 = _rdtsc();
+    uint64_t d = t1 - t0;
+    dinptr = d < dinptr ? d : dinptr;
+  }
+
+  for (int t = 0; t < tries; ++t) {
+    uint64_t t0 = _rdtsc();
+    outptr_add_vec(repeat, A, B, n);
+    uint64_t t1 = _rdtsc();
+    uint64_t d = t1 - t0;
+    doutptr = d < doutptr ? d : doutptr;
+  }
+
+  for (int t = 0; t < tries; ++t) {
+    uint64_t t0 = _rdtsc();
+    ptr_add_vec(repeat, A, B, n);
+    uint64_t t1 = _rdtsc();
+    uint64_t d = t1 - t0;
+    dptr = d < dptr ? d : dptr;
+  }
+
+  printf("ref   : %.2f cpp\n", (double)dref    / (double)(n * repeat));
+  printf("value : %.2f cpp\n", (double)dvalue  / (double)(n * repeat));
+  printf("inptr : %.2f cpp\n", (double)dinptr  / (double)(n * repeat));
+  printf("outptr: %.2f cpp\n", (double)doutptr / (double)(n * repeat));
+  printf("ptr   : %.2f cpp\n", (double)dptr    / (double)(n * repeat));
 
   free(mem2);
   free(mem1);
