@@ -16,6 +16,7 @@ void _outptr_add512(__m512 a, __m512 b, float* dst) {
 }
 void (*outptr_add512)(__m512, __m512, float*) = &_outptr_add512;
 #else
+// Set those symbols to NULL to signal the lib user that they are not implemented
 void (*value_add512)() = NULL;
 void (*inptr_add512)() = NULL;
 void (*outptr_add512)() = NULL;

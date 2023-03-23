@@ -16,6 +16,7 @@ void _outptr_add128(__m128 a, __m128 b, float* dst) {
 }
 void (*outptr_add128)(__m128, __m128, float*) = &_outptr_add128;
 #else
+// Set those symbols to NULL to signal the lib user that they are not implemented
 void (*value_add128)() = NULL;
 void (*inptr_add128)() = NULL;
 void (*outptr_add128)() = NULL;

@@ -16,6 +16,7 @@ void _outptr_add256(__m256 a, __m256 b, float* dst) {
 }
 void (*outptr_add256)(__m256, __m256, float*) = &_outptr_add256;
 #else
+// Set those symbols to NULL to signal the lib user that they are not implemented
 void (*value_add256)() = NULL;
 void (*inptr_add256)() = NULL;
 void (*outptr_add256)() = NULL;

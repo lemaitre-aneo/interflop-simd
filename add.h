@@ -9,10 +9,6 @@ extern void (*ptr_add)(const float*, const float*, float*);
 extern __m128 (*value_add128)(__m128, __m128);
 extern __m128 (*inptr_add128)(const float*, const float*);
 extern void (*outptr_add128)(__m128, __m128, float*);
-#else
-extern void (*value_add128)();
-extern void (*inptr_add128)();
-extern void (*outptr_add128)();
 #endif
 extern void (*ptr_add128)(const float*, const float*, float*);
 
@@ -20,10 +16,6 @@ extern void (*ptr_add128)(const float*, const float*, float*);
 extern __m256 (*value_add256)(__m256, __m256);
 extern __m256 (*inptr_add256)(const float*, const float*);
 extern void (*outptr_add256)(__m256, __m256, float*);
-#else
-extern void (*value_add256)();
-extern void (*inptr_add256)();
-extern void (*outptr_add256)();
 #endif
 extern void (*ptr_add256)(const float*, const float*, float*);
 
@@ -31,9 +23,5 @@ extern void (*ptr_add256)(const float*, const float*, float*);
 extern __m512 (*value_add512)(__m512, __m512);
 extern __m512 (*inptr_add512)(const float*, const float*);
 extern void (*outptr_add512)(__m512, __m512, float*);
-#else
-extern void (*value_add512)();
-extern void (*inptr_add512)();
-extern void (*outptr_add512)();
 #endif
 extern void (*ptr_add512)(const float*, const float*, float*);
