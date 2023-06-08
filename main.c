@@ -23,211 +23,361 @@
 #endif
 
 
+#define STR_(x) #x
+#define STR(x) STR_(x)
+#define UNROLL(t, N, ...) do { _Pragma(STR(GCC unroll N)) for (int t = 0; t < N; ++t) { __VA_ARGS__ } } while(0)
+
+#ifndef N
+#define N 64
+#endif
+
+#define NOINLINE __attribute__((noinline))
+
+NOINLINE
 void ref_combine_vec(float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ref scalar version\n"));
   for (int i = 0; i < n; ++i) {
     float a, b, c;
     a = OPTIMIZATION_BARRIER(float, A[i]);
     b = OPTIMIZATION_BARRIER(float, B[i]);
-    c = a + b;
+
+    UNROLL(t, N,
+        c = a + b;
+        a = b;
+        b = c;
+    );
+
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
+NOINLINE
 void value_combine_vec(float(*f)(float, float), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use value scalar version\n"));
   for (int i = 0; i < n; ++i) {
     float a, b, c;
     a = OPTIMIZATION_BARRIER(float, A[i]);
     b = OPTIMIZATION_BARRIER(float, B[i]);
-    c = f(a, b);
+
+    UNROLL(t, N,
+        c = f(a, b);
+        a = b;
+        b = c;
+    );
+
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
+NOINLINE
 void inptr_combine_vec(float(*f)(const float*, const float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use inptr scalar version\n"));
   for (int i = 0; i < n; ++i) {
     float a, b, c;
     a = OPTIMIZATION_BARRIER(float, A[i]);
     b = OPTIMIZATION_BARRIER(float, B[i]);
-    c = f(&a, &b);
+
+    UNROLL(t, N,
+        c = f(&a, &b);
+        a = b;
+        b = c;
+    );
+
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
+NOINLINE
 void outptr_combine_vec(void(*f)(float, float, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use outptr scalar version\n"));
   for (int i = 0; i < n; ++i) {
     float a, b, c;
     a = OPTIMIZATION_BARRIER(float, A[i]);
     b = OPTIMIZATION_BARRIER(float, B[i]);
-    f(a, b, &c);
+
+    UNROLL(t, N,
+        f(a, b, &c);
+        a = b;
+        b = c;
+    );
+
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
+NOINLINE
 void ptr_combine_vec(void(*f)(const float*, const float*, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ptr scalar version\n"));
   for (int i = 0; i < n; ++i) {
     float a, b, c;
     a = OPTIMIZATION_BARRIER(float, A[i]);
     b = OPTIMIZATION_BARRIER(float, B[i]);
-    f(&a, &b, &c);
+
+    UNROLL(t, N,
+        f(&a, &b, &c);
+        a = b;
+        b = c;
+    );
+
     A[i] = OPTIMIZATION_BARRIER(float, c);
   }
 }
 
 #if defined(__SSE2__)
+NOINLINE
 void ref_combine_vec128(float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ref VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
     __m128 a, b, c;
     a = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&B[i]));
-    c = _mm_add_ps(a, b);
+
+    UNROLL(t, N,
+        c = _mm_add_ps(a, b);
+        a = b;
+        b = c;
+    );
+
     _mm_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m128, c));
   }
 }
+NOINLINE
 void value_combine_vec128(__m128(*f)(__m128, __m128), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use value VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
     __m128 a, b, c;
     a = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&B[i]));
-    c = f(a, b);
+
+    UNROLL(t, N,
+        c = f(a, b);
+        a = b;
+        b = c;
+    );
+
     _mm_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m128, c));
   }
 }
+NOINLINE
 void inptr_combine_vec128(__m128(*f)(const float*, const float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use inptr VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
     __m128 a, b, c;
     a = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&B[i]));
-    c = f((float*)&a, (float*)&b);
+
+    UNROLL(t, N,
+        c = f((float*)&a, (float*)&b);
+        a = b;
+        b = c;
+    );
+
     _mm_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m128, c));
   }
 }
+NOINLINE
 void outptr_combine_vec128(void(*f)(__m128, __m128, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use outptr VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
     __m128 a, b, c;
     a = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&B[i]));
-    f(a, b, (float*)&c);
+
+    UNROLL(t, N,
+        f(a, b, (float*)&c);
+        a = b;
+        b = c;
+    );
+
     _mm_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m128, c));
   }
 }
+NOINLINE
 void ptr_combine_vec128(void(*f)(const float*, const float*, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ptr VEC128 version\n"));
   for (int i = 0; i < n; i += 4) {
     __m128 a, b, c;
     a = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m128, _mm_loadu_ps(&B[i]));
-    f((float*)&a, (float*)&b, (float*)&c);
+
+    UNROLL(t, N,
+        f((float*)&a, (float*)&b, (float*)&c);
+        a = b;
+        b = c;
+    );
+
     _mm_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m128, c));
   }
 }
 #endif
 
 #if defined(__AVX__)
+NOINLINE
 void ref_combine_vec256(float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ref VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
     __m256 a, b, c;
     a = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&B[i]));
-    c = _mm256_add_ps(a, b);
+
+    UNROLL(t, N,
+        c = _mm256_add_ps(a, b);
+        a = b;
+        b = c;
+    );
+
     _mm256_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m256, c));
   }
 }
+NOINLINE
 void value_combine_vec256(__m256(*f)(__m256, __m256), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use value VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
     __m256 a, b, c;
     a = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&B[i]));
-    c = f(a, b);
+
+    UNROLL(t, N,
+        c = f(a, b);
+        a = b;
+        b = c;
+    );
+
     _mm256_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m256, c));
   }
 }
+NOINLINE
 void inptr_combine_vec256(__m256(*f)(const float*, const float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use inptr VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
     __m256 a, b, c;
     a = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&B[i]));
-    c = f((float*)&a, (float*)&b);
+
+    UNROLL(t, N,
+        c = f((float*)&a, (float*)&b);
+        a = b;
+        b = c;
+    );
+
     _mm256_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m256, c));
   }
 }
+NOINLINE
 void outptr_combine_vec256(void(*f)(__m256, __m256, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use outptr VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
     __m256 a, b, c;
     a = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&B[i]));
-    f(a, b, (float*)&c);
+
+    UNROLL(t, N,
+        f(a, b, (float*)&c);
+        a = b;
+        b = c;
+    );
+
     _mm256_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m256, c));
   }
 }
+NOINLINE
 void ptr_combine_vec256(void(*f)(const float*, const float*, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ptr VEC256 version\n"));
   for (int i = 0; i < n; i += 8) {
     __m256 a, b, c;
     a = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m256, _mm256_loadu_ps(&B[i]));
-    f((float*)&a, (float*)&b, (float*)&c);
+
+    UNROLL(t, N,
+        f((float*)&a, (float*)&b, (float*)&c);
+        a = b;
+        b = c;
+    );
+
     _mm256_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m256, c));
   }
 }
 #endif
 
 #if defined(__AVX512F__)
+NOINLINE
 void ref_combine_vec512(float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ref VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
     __m512 a, b, c;
     a = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&B[i]));
-    c = _mm512_add_ps(a, b);
+
+    UNROLL(t, N,
+        c = _mm512_add_ps(a, b);
+        a = b;
+        b = c;
+    );
+
     _mm512_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m512, c));
   }
 }
+NOINLINE
 void value_combine_vec512(__m512(*f)(__m512, __m512), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use value VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
     __m512 a, b, c;
     a = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&B[i]));
-    c = f(a, b);
+
+    UNROLL(t, N,
+        c = f(a, b);
+        a = b;
+        b = c;
+    );
+
     _mm512_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m512, c));
   }
 }
+NOINLINE
 void inptr_combine_vec512(__m512(*f)(const float*, const float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use inptr VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
     __m512 a, b, c;
     a = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&B[i]));
-    c = f((float*)&a, (float*)&b);
+
+    UNROLL(t, N,
+        c = f((float*)&a, (float*)&b);
+        a = b;
+        b = c;
+    );
+
     _mm512_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m512, c));
   }
 }
+NOINLINE
 void outptr_combine_vec512(void(*f)(__m512, __m512, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use outptr VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
     __m512 a, b, c;
     a = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&B[i]));
-    f(a, b, (float*)&c);
+
+    UNROLL(t, N,
+        f(a, b, (float*)&c);
+        a = b;
+        b = c;
+    );
+
     _mm512_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m512, c));
   }
 }
+NOINLINE
 void ptr_combine_vec512(void(*f)(const float*, const float*, float*), float* A, const float* B, int n) {
   VERBOSE(fprintf(stderr, "Use ptr VEC512 version\n"));
   for (int i = 0; i < n; i += 16) {
     __m512 a, b, c;
     a = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&A[i]));
     b = OPTIMIZATION_BARRIER(__m512, _mm512_loadu_ps(&B[i]));
-    f((float*)&a, (float*)&b, (float*)&c);
+
+    UNROLL(t, N,
+        f((float*)&a, (float*)&b, (float*)&c);
+        a = b;
+        b = c;
+    );
+
     _mm512_storeu_ps(&A[i], OPTIMIZATION_BARRIER(__m512, c));
   }
 }
@@ -344,7 +494,7 @@ void ptr_add_vec(int repeat, float* A, const float* B, int n) {
 }
 
 int main() {
-  int tries = 10000;
+  int tries = 10000 / N;
   int repeat = 100;
   int n = 1000;
   void* mem1 = malloc(n*sizeof(float) + 4096);

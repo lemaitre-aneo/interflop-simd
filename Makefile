@@ -1,6 +1,6 @@
-LIB_ARCH_FLAGS=-mavx
+LIB_ARCH_FLAGS=-mavx512f
 EXE_ARCH_FLAGS=-mavx512f
-EXE_FLAGS=-DDEBUG=0 -DFORCE_LOAD=1
+EXE_FLAGS=-DDEBUG=0 -DFORCE_LOAD=1 -DN=64
 
 CC=gcc
 LD=gcc
@@ -9,7 +9,7 @@ AR=ar
 all: exe
 
 %.o: %.c
-	$(CC) $(LIB_ARCH_FLAGS) -O2 -o $@ -c $^
+	$(CC) $(LIB_ARCH_FLAGS) -O3 -o $@ -c $^
 
 libadd.a: add.o add.sse.o add.avx.o add.avx512.o
 	$(AR) -rc $@ $^
