@@ -560,11 +560,11 @@ int main() {
     dptr = d < dptr ? d : dptr;
   }
 
-  printf("ref   : %.2f cpp\n", (double)dref    / (double)(n * repeat));
-  printf("value : %.2f cpp\n", (double)dvalue  / (double)(n * repeat));
-  printf("inptr : %.2f cpp\n", (double)dinptr  / (double)(n * repeat));
-  printf("outptr: %.2f cpp\n", (double)doutptr / (double)(n * repeat));
-  printf("ptr   : %.2f cpp\n", (double)dptr    / (double)(n * repeat));
+  printf("ref   : %.2f cpp\n", (double)dref    / (double)(n * repeat * N));
+  printf("value : %.2f cpp\n", (double)dvalue  / (double)(n * repeat * N));
+  printf("inptr : %.2f cpp\n", (double)dinptr  / (double)(n * repeat * N));
+  printf("outptr: %.2f cpp\n", (double)doutptr / (double)(n * repeat * N));
+  printf("ptr   : %.2f cpp\n", (double)dptr    / (double)(n * repeat * N));
 
   free(mem2);
   free(mem1);
