@@ -237,6 +237,8 @@ With this design, `main.c` and `add*.c` could be compiled targeting different ar
 
 ### Benchmark
 
+#### Sum
+
 Code benched (arrays fit in L1):
 ```
 A[0:1000] += B[0:1000]
@@ -248,14 +250,36 @@ Time measurment in cycles per point (cpp).
 
 | variant | scalar |  sse |  avx | avx512 |
 |:--------|:------:|:----:|:----:|:------:|
-| ref     |  1.26  | 0.43 | 0.23 |  0.11  |
-| value   |  4.16  | 1.06 | 0.64 |  0.33  |
-| inptr   |  4.17  | 1.26 | 0.65 |  0.34  |
-| outptr  |  4.17  | 1.07 | 0.56 |  0.35  |
-| ptr     |  4.66  | 1.44 | 0.85 |  1.11  |
+| ref     |  0.79  | 0.21 | 0.12 |  0.08  |
+| value   |  2.33  | 0.59 | 0.37 |  0.19  |
+| inptr   |  2.90  | 0.74 | 0.38 |  0.23  |
+| outptr  |  2.33  | 0.59 | 0.38 |  0.19  |
+| ptr     |  2.92  | 0.89 | 0.53 |  0.94  |
 
 All variants give roughly the same performance (up to quality of the optimizations).
 We should need to test on codes that have more operations to see if this stays true.
 The assembly shows that the value variant is very efficient in term of instructions.
 
 Even though the ptr variant would have been nice for the compatibility, it does not play well with the machine.
+
+#### Fibonacci
+
+Code benched (arrays fit in L1):
+```
+A[0:1000] = fibonacci(A[0:1000], B[0:1000], 64)
+```
+
+Time measurment in cycles per point (cpp).
+`ref` is a version without indirect call.
+
+
+| variant | scalar |  sse |  avx | avx512 |
+|:--------|:------:|:----:|:----:|:------:|
+| ref     |  0.73  | 0.18 | 0.09 |  0.05  |
+| value   |  2.15  | 0.54 | 0.28 |  0.14  |
+| inptr   |  4.23  | 1.05 | 0.58 |  0.31  |
+| outptr  |  4.01  | 1.01 | 0.55 |  0.29  |
+| ptr     |  6.97  | 1.74 | 0.97 |  1.17  |
+
+When the Arithmetic Intensity is higher (less memory access per operation), the difference between the variants are larger.
+In particular, the pass-by value variant is twice faster than inptr and outptr, and 3-4x faster than ptr, and even 8x faster in AVX512.
